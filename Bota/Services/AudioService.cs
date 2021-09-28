@@ -122,7 +122,7 @@ namespace Bota.Services
 
             if (player == null)
             {
-                textChannel.SendMessageAsync("Nem to conectado oporra");
+                await textChannel .SendMessageAsync("Nem to conectado oporra");
                 return;
             }
 
@@ -165,19 +165,19 @@ namespace Bota.Services
 
             if (player == null)
             {
-                textChannel.SendMessageAsync("Não achei o player, tem alguma coisa tocando? 🤔");
+                await textChannel.SendMessageAsync("Não achei o player, tem alguma coisa tocando? 🤔");
                 return;
             }
 
             if (player.Queue.Count < 1)
             {
-                textChannel.SendMessageAsync("Essa é a última música");
+                await textChannel.SendMessageAsync("Essa é a última música");
                 return;
             }
 
             var currentTrack = player.Track;
 
-            textChannel.SendMessageAsync($"Pulando {currentTrack.Title}");
+            await textChannel.SendMessageAsync($"Pulando {currentTrack.Title}");
             await player.SkipAsync();
         }
 
@@ -186,7 +186,7 @@ namespace Bota.Services
             var player = _lavaNode.GetPlayer(guild);
             if (player == null)
             {
-                textChannel.SendMessageAsync("Não achei o player, tem alguma coisa tocando? 🤔");
+                await textChannel .SendMessageAsync("Não achei o player, tem alguma coisa tocando? 🤔");
             }
 
             if (player.PlayerState == PlayerState.Playing || player.PlayerState == PlayerState.Paused)
@@ -194,7 +194,7 @@ namespace Bota.Services
                 await player.StopAsync();
             }
 
-            textChannel.SendMessageAsync("Parei e limpei a playlist.");
+            await textChannel .SendMessageAsync("Parei e limpei a playlist.");
         }
 
         private async Task TrackEnded(TrackEndedEventArgs args)

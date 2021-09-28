@@ -36,10 +36,5 @@ namespace Bota.Context
             );
             base.OnModelCreating(modelBuilder);
         }
-
-        internal Task FirstOrDefaultAsync()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
