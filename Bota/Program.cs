@@ -1,7 +1,6 @@
 ﻿namespace Bota
 {
     using System.IO;
-
     using System.Threading.Tasks;
     using Bota.Services;
     using Discord;
@@ -15,6 +14,8 @@
     using Bota.Context;
     using Microsoft.EntityFrameworkCore;
     using Victoria;
+    using System;
+    using System.Diagnostics;
 
     /// <summary>
     /// Entry point of the program.
@@ -23,9 +24,10 @@
     {
         public static async Task Main(string[] args)
         {
+
             var builder = new HostBuilder()
                 .ConfigureAppConfiguration(x => x
-                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .SetBasePath(GetBasePath())
                     .AddJsonFile("appsettings.json", false, true)
                     .Build())
                 .ConfigureLogging(x => x
@@ -35,7 +37,6 @@
                 {
                     var connectionString = context.Configuration.GetConnectionString("DefaultConnectionString");
                     var serverversion = ServerVersion.AutoDetect(connectionString);
-
                     services.AddDbContext<ApplicationContext>(options => options.UseMySql(connectionString, serverversion));
                     services.AddSingleton<LavaNode>();
                     services.AddSingleton<LavaConfig>();
@@ -65,11 +66,24 @@
                 })
                 .UseConsoleLifetime();
 
+
             var host = builder.Build();
             using (host)
             {
                 await host.RunAsync();
             }
+        }
+
+        private static string GetBasePath()
+        {
+            var environment = Environment.GetEnvironmentVariable("DOTNET_ROOT");
+            var isDevelopment = environment == Environments.Development;
+            if (isDevelopment)
+            {
+                return Directory.GetCurrentDirectory();
+            }
+            using var processModule = Process.GetCurrentProcess().MainModule;
+            return Path.GetDirectoryName(processModule?.FileName);
         }
     }
 }
