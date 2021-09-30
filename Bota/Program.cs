@@ -41,6 +41,7 @@
                     services.AddSingleton<LavaNode>();
                     services.AddSingleton<LavaConfig>();
                     services.AddSingleton<AudioService>();
+                    services.AddSingleton<SteamService>();
                     services.AddLavaNode(x =>
                     {
                         x.SelfDeaf = false;
@@ -76,12 +77,6 @@
 
         private static string GetBasePath()
         {
-            var environment = Environment.GetEnvironmentVariable("DOTNET_ROOT");
-            var isDevelopment = environment == Environments.Development;
-            if (isDevelopment)
-            {
-                return Directory.GetCurrentDirectory();
-            }
             using var processModule = Process.GetCurrentProcess().MainModule;
             return Path.GetDirectoryName(processModule?.FileName);
         }

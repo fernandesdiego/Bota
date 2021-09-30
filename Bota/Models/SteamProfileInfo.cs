@@ -12,9 +12,11 @@
         public string PersonaName { get; set; }
         public string ProfileUrl { get; set; }
         public string AvatarFull { get; set; }
-        public long LastLogoff { get; set; }
         public int PersonaState { get; set; }
-        public string RealName { get; set; }
-
+        public int GameCount { get; set; }
+        public int Badges { get; set; }
+        public float Xp { get; set; }
+        public int Level { get; set; }
+        public float XpToNextLevel { get; set; }
     }
 }
