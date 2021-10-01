@@ -14,6 +14,7 @@
         public string AvatarFull { get; set; }
         public int PersonaState { get; set; }
         public int GameCount { get; set; }
+        public int GroupCount { get; set; }
         public int Badges { get; set; }
         public float Xp { get; set; }
         public int Level { get; set; }

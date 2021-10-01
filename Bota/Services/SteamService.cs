@@ -6,7 +6,10 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,7 +59,7 @@ namespace Bota.Services
 
             if (arr.Count == 0)
             {
-                await commandContext.Channel.SendMessageAsync("Não encontrei esse usuário.");
+                var message = await commandContext.Channel.SendMessageAsync("Não encontrei esse usuário.");
                 return;
             }
 
@@ -76,9 +79,26 @@ namespace Bota.Services
             profile.XpToNextLevel = (int)badgeObj["response"]["player_xp_needed_to_level_up"];
             profile.Badges = badgeArr.Count;
 
-            Console.Write(profile);
-        }
+            var groupCount = await client.GetStringAsync($"http://api.steampowered.com/ISteamUser/GetUserGroupList/v0001/?key={steamApiKey}&steamid={steamId}");
+            JObject groupObj = JObject.Parse(groupCount);
+            JArray groupArr = JArray.Parse(groupObj["response"]["groups"].ToString());
 
+            profile.GroupCount = groupArr.Count;
+
+            CreateSteamBitmap(profile);
+
+            var embed = new EmbedBuilder()
+            {
+                ImageUrl = "attachment://overlay.png"
+            }
+            .WithUrl(profile.ProfileUrl)
+            .WithFooter(new EmbedFooterBuilder() { Text = profile.ProfileUrl, IconUrl = "https://e7.pngegg.com/pngimages/699/999/png-clipart-brand-logo-steam-gump-s.png" })
+            .Build();
+
+            await commandContext.Channel.SendFileAsync("overlay.png", embed: embed);
+
+            //commandContext.Channel.SendMessageAsync(embed: embed);
+        }
         private async Task<long> GetSteamByName([Remainder] string steamName, SocketCommandContext commandContext)
         {
             var config = await _context.BotConfigs.FirstOrDefaultAsync();
@@ -93,6 +113,65 @@ namespace Bota.Services
             JObject obj = JObject.Parse(result);
             long.TryParse((string)obj["response"]["steamid"], out long id);
             return id;
+        }
+
+        private void CreateSteamBitmap(SteamProfileInfo profile)
+        {
+            System.Drawing.Image background = System.Drawing.Image.FromFile("unknown.png"); // base img
+
+            HttpWebRequest request = HttpWebRequest.Create(profile.AvatarFull) as HttpWebRequest;
+            var response = request.GetResponse();
+            Bitmap profilePic = new Bitmap(response.GetResponseStream());
+
+            profilePic = new Bitmap(profilePic, 215, 215);
+
+            Bitmap newImage = new Bitmap(background.Width, background.Height);
+
+            using (Graphics gr = Graphics.FromImage(newImage))
+            {
+                gr.DrawImage(background, new Point(0, 0));
+
+                gr.DrawString($"Nível {profile.Level}", new Font("Fira Code", 22f), Brushes.WhiteSmoke, 708, 42);
+                gr.DrawString($"Insígnias {profile.Badges}", new Font("Fira Code", 22f), Brushes.WhiteSmoke, 708, 82);
+                gr.DrawString($"Grupos {profile.GroupCount}", new Font("Fira Code", 22f), Brushes.WhiteSmoke, 708, 122);
+
+                var nameLenght = profile.PersonaName.Length;
+
+                gr.DrawString(profile.PersonaName.Length < 15 ? profile.PersonaName : profile.PersonaName.Substring(0, 15), new Font("Fira Code", 22f), Brushes.SlateGray, 326, 42);
+                gr.DrawString($"{SteamStatus(profile.PersonaState)}", new Font("Fira Code", 18f), Brushes.WhiteSmoke, 326, 81);
+                gr.DrawString($"Jogos {profile.GameCount}", new Font("Fira Code", 18f), Brushes.WhiteSmoke, 326, 173);
+
+                float currentXp = profile.Xp;
+                float toNextLvl = profile.XpToNextLevel;
+                float xpPercent = currentXp / (currentXp + toNextLvl) * 100;
+
+                float barWidth = 600;
+                float currentProgress = xpPercent / 100 * barWidth;
+
+                gr.DrawRectangle(new Pen(Brushes.DimGray), 326, 210, barWidth, 20);
+                gr.FillRectangle(Brushes.DimGray, 326, 210, currentProgress, 20);
+
+                gr.DrawString($"{currentXp} XP → {toNextLvl}", new Font("Fira Code", 10f), Brushes.WhiteSmoke, 326, 231);
+
+                using (GraphicsPath gp = new GraphicsPath())
+                {
+                    var radius = 15 * 2;
+                    var x = 57;
+                    var y = 41;
+                    var size = 215;
+                    // create rounded square
+                    gp.AddArc(x, y, radius, radius, 180, 90);
+                    gp.AddArc(x + profilePic.Width - radius, 39, radius, radius, 270, 90);
+                    gp.AddArc(x + profilePic.Width - radius, y + profilePic.Height - radius, radius, radius, 0, 90);
+                    gp.AddArc(x, y + profilePic.Height - radius, radius, radius, 90, 90);
+
+                    gr.SmoothingMode = SmoothingMode.HighQuality;
+                    gr.SetClip(gp);
+                    gr.DrawImage(profilePic, x, y, size, size);
+                }
+            }
+
+            newImage.Save("overlay.png");
         }
 
         private static string SteamStatus(int number)
