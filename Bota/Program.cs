@@ -27,7 +27,8 @@
 
             var builder = new HostBuilder()
                 .ConfigureAppConfiguration(x => x
-                    .SetBasePath(GetBasePath())
+                    //.SetBasePath(GetBasePath())
+                    .SetBasePath(AppContext.BaseDirectory)
                     .AddJsonFile("appsettings.json", false, true)
                     .Build())
                 .ConfigureLogging(x => x

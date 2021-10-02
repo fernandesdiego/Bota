@@ -89,17 +89,20 @@ namespace Bota.Services
 
             CreateSteamBitmap(profile);
 
+            //var stringBuilder = new StringBuilder("attachment:/");
+            //stringBuilder.Append(Path.Combine(AppContext.BaseDirectory, "overlay.png"));
+
             var embed = new EmbedBuilder()
             {
-                ImageUrl = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "attachment://overlay.png" : "attachment:\\overlay.png"
+                ImageUrl = "attachment://overlay.png"
             }
             .WithUrl(profile.ProfileUrl)
             .WithFooter(new EmbedFooterBuilder() { Text = profile.ProfileUrl, IconUrl = "https://e7.pngegg.com/pngimages/699/999/png-clipart-brand-logo-steam-gump-s.png" })
             .Build();
 
-            await commandContext.Channel.SendFileAsync("overlay.png", embed: embed);
+            await commandContext.Message.DeleteAsync();
+            await commandContext.Channel.SendFileAsync($"{AppContext.BaseDirectory}overlay.png", embed: embed);
 
-            //commandContext.Channel.SendMessageAsync(embed: embed);
         }
         private async Task<long> GetSteamByName([Remainder] string steamName, SocketCommandContext commandContext)
         {
@@ -174,7 +177,7 @@ namespace Bota.Services
                 }
             }
 
-            newImage.Save("overlay.png");
+            newImage.Save(Path.Combine(AppContext.BaseDirectory, "overlay.png"));
         }
 
         private static string SteamStatus(int number)
