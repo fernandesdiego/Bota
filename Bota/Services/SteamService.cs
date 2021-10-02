@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -117,7 +118,8 @@ namespace Bota.Services
 
         private void CreateSteamBitmap(SteamProfileInfo profile)
         {
-            System.Drawing.Image background = System.Drawing.Image.FromFile("unknown.png"); // base img
+            var currentPath = Directory.GetCurrentDirectory();
+            System.Drawing.Image background = System.Drawing.Image.FromFile(Path.Combine(currentPath, "unknown.png")); // base img
 
             HttpWebRequest request = HttpWebRequest.Create(profile.AvatarFull) as HttpWebRequest;
             var response = request.GetResponse();
