@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -90,7 +91,7 @@ namespace Bota.Services
 
             var embed = new EmbedBuilder()
             {
-                ImageUrl = "attachment://overlay.png"
+                ImageUrl = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "attachment://overlay.png" : "attachment:\\overlay.png"
             }
             .WithUrl(profile.ProfileUrl)
             .WithFooter(new EmbedFooterBuilder() { Text = profile.ProfileUrl, IconUrl = "https://e7.pngegg.com/pngimages/699/999/png-clipart-brand-logo-steam-gump-s.png" })
