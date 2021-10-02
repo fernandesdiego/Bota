@@ -123,8 +123,9 @@ namespace Bota.Services
         private void CreateSteamBitmap(SteamProfileInfo profile)
         {
             var currentPath = Directory.GetCurrentDirectory();
-            System.Drawing.Image background = System.Drawing.Image.FromFile(Path.Combine(currentPath, "unknown.png")); // base img
-
+	    Console.Write(Path.Combine(currentPath, "unknown.png"));
+            System.Drawing.Image background = System.Drawing.Image.FromFile(Path.Combine(AppContext.BaseDirectory, "unknown.png")); // base img
+	
             HttpWebRequest request = HttpWebRequest.Create(profile.AvatarFull) as HttpWebRequest;
             var response = request.GetResponse();
             Bitmap profilePic = new Bitmap(response.GetResponseStream());
