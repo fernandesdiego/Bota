@@ -25,32 +25,16 @@ namespace Bota.Services
         {
             _context = contex;
         }
-        public async Task GetUserByName(SocketCommandContext commandContext, string userName)
-        {
-            await GetSteamUser(userName: userName, commandContext: commandContext);
-        }
 
-        public async Task GetSteamUser(SocketCommandContext commandContext, long steamId = 0, string userName = "")
+        public async Task GetSteamUser(SocketCommandContext commandContext, int id3)
         {
+            var steamId = ConvertId3ToSteamID(id3);
+
             var config = await _context.BotConfigs.FirstOrDefaultAsync();
             var steamApiKey = config.SteamApiKey;
-            if (steamApiKey == string.Empty || steamApiKey == null)
+            if (string.IsNullOrEmpty(steamApiKey))
             {
                 await commandContext.Channel.SendMessageAsync("Configure a sua API key da Steam no painel primeiro");
-            }
-
-            if (steamId == 0 && userName == string.Empty)
-            {
-                await commandContext.Channel.SendMessageAsync("Preciso do nome de usuário ou Id.");
-            }
-            if (steamId == 0 && userName != string.Empty)
-            {
-                steamId = await GetSteamByName(userName, commandContext);
-                if (steamId == 0)
-                {
-                    await commandContext.Channel.SendMessageAsync("Não encontrei esse usuário.");
-                    return;
-                }
             }
 
             var client = new HttpClient();
@@ -89,15 +73,12 @@ namespace Bota.Services
 
             CreateSteamBitmap(profile);
 
-            //var stringBuilder = new StringBuilder("attachment:/");
-            //stringBuilder.Append(Path.Combine(AppContext.BaseDirectory, "overlay.png"));
-
             var embed = new EmbedBuilder()
             {
                 ImageUrl = "attachment://overlay.png"
             }
             .WithUrl(profile.ProfileUrl)
-            .WithFooter(new EmbedFooterBuilder() { Text = profile.ProfileUrl, IconUrl = "https://e7.pngegg.com/pngimages/699/999/png-clipart-brand-logo-steam-gump-s.png" })
+            .WithFooter(new EmbedFooterBuilder() { Text = $"{profile.ProfileUrl} \n{id3}", IconUrl = "https://e7.pngegg.com/pngimages/699/999/png-clipart-brand-logo-steam-gump-s.png" })
             .Build();
 
             await commandContext.Message.DeleteAsync();
@@ -198,5 +179,18 @@ namespace Bota.Services
             }
         }
 
+        public async Task GetSteamProfile(SocketCommandContext commandContext, int friendCode)
+        {
+            var userId = ConvertId3ToSteamID(friendCode);
+
+
+        }
+
+        private Int64 ConvertId3ToSteamID(int id3)
+        {
+            const Int64 steamIdentifier = 76561197960265728;
+
+            return steamIdentifier + id3;
+        }
     }
 }

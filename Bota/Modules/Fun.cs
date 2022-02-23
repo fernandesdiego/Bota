@@ -57,91 +57,9 @@
         }
 
         [Command("steam")]
-        public async Task GetUserById(long steamId)
+        public async Task GetUserById(int steamId)
         {
-            await _steamService.GetSteamUser(Context,steamId: steamId);
-
-            // await GetSteamUser(steamId: steamId);
+            await _steamService.GetSteamUser(Context, steamId);
         }
-
-        [Command("steam")]
-        public async Task GetUserByName(string userName)
-        {
-            await _steamService.GetSteamUser(Context, userName: userName);
-
-            // await GetSteamUser(userName: userName);
-        }
-
-        //public async Task GetSteamUser(long steamId = 0, string userName = "")
-        //{
-        //    var config = await _context.BotConfigs.FirstOrDefaultAsync();
-        //    var steamApiKey = config.SteamApiKey;
-        //    if (steamApiKey == string.Empty || steamApiKey == null)
-        //    {
-        //        await Context.Channel.SendMessageAsync("Configure a sua API key da Steam no painel primeiro");
-        //    }
-
-        //    if (steamId == 0 && userName == string.Empty)
-        //    {
-        //        await Context.Channel.SendMessageAsync("Preciso do nome de usuário ou Id.");
-        //    }
-        //    if (steamId == 0 && userName != string.Empty)
-        //    {
-        //        steamId = await GetSteamByName(userName);
-        //        if (steamId == 0)
-        //        {
-        //            await Context.Channel.SendMessageAsync("Não encontrei esse usuário.");
-        //            return;
-        //        }
-        //    }
-
-        //    var client = new HttpClient();
-        //    var result = await client.GetStringAsync($"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={steamApiKey}&steamids={steamId}");
-
-        //    JObject obj = JObject.Parse(result);
-        //    JArray arr = JArray.Parse(obj["response"]["players"].ToString());
-
-        //    if (arr.Count == 0)
-        //    {
-        //        await Context.Channel.SendMessageAsync("Não encontrei esse usuário.");
-        //        return;
-        //    }
-
-        //    SteamProfileInfo profile = JsonConvert.DeserializeObject<SteamProfileInfo>(arr[0].ToString());
-
-        //}
-
-        //private async Task<long> GetSteamByName([Remainder]string steamName)
-        //{
-        //    var config = await _context.BotConfigs.FirstOrDefaultAsync();
-        //    var steamApiKey = config.SteamApiKey;
-        //    if (steamApiKey == string.Empty || steamApiKey == null)
-        //    {
-        //        await Context.Channel.SendMessageAsync("Configure a sua API key da Steam no painel primeiro");
-        //    }
-
-        //    var client = new HttpClient();
-        //    var result = await client.GetStringAsync($"https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={steamApiKey}&vanityurl={steamName}");
-        //    JObject obj = JObject.Parse(result);
-        //    long.TryParse((string)obj["response"]["steamid"], out long id);
-        //    return id;
-        //}
-
-        //private static string SteamStatus(int number)
-        //{
-        //    switch (number)
-        //    {
-        //        case 0:
-        //            return "Offline";
-        //        case 1:
-        //            return "Online";
-        //        case 2:
-        //            return "Ocupado";
-        //        case 3:
-        //            return "Away";
-        //        default:
-        //            return "Desconhecido";
-        //    }
-        //}
     }
 }
