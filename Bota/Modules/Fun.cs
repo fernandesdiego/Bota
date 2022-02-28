@@ -59,7 +59,7 @@
         [Command("steam")]
         public async Task GetUserById(int steamId)
         {
-            await _steamService.GetSteamUser(Context, steamId);
+            await _steamService.GetSteamUser(commandContext: Context, id3: steamId);
         }
     }
 }
