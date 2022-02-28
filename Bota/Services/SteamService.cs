@@ -21,92 +21,147 @@ namespace Bota.Services
     public class SteamService
     {
         private readonly ApplicationContext _context;
+
         public SteamService(ApplicationContext contex)
         {
             _context = contex;
         }
 
-        public async Task GetSteamUser(SocketCommandContext commandContext, int id3)
+        public async Task GetSteamUser(int id3, SocketCommandContext commandContext)
         {
-            var steamId = ConvertId3ToSteamID(id3);
+            var id64 = GetSteamId64(id3);
 
-            var config = await _context.BotConfigs.FirstOrDefaultAsync();
-            var steamApiKey = config.SteamApiKey;
-            if (string.IsNullOrEmpty(steamApiKey))
+            var apiKey = await GetSteamApiKey();
+            if (string.IsNullOrEmpty(apiKey))
             {
-                await commandContext.Channel.SendMessageAsync("Configure a sua API key da Steam no painel primeiro");
-            }
-
-            var client = new HttpClient();
-            var result = await client.GetStringAsync($"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={steamApiKey}&steamids={steamId}");
-
-            JObject obj = JObject.Parse(result);
-            JArray arr = JArray.Parse(obj["response"]["players"].ToString());
-
-            if (arr.Count == 0)
-            {
-                var message = await commandContext.Channel.SendMessageAsync("Não encontrei esse usuário.");
+                _ = commandContext.Channel.SendMessageAsync("Não encontrei uma chave de api steam válida, verifique o painel");
                 return;
             }
 
-            SteamProfileInfo profile = JsonConvert.DeserializeObject<SteamProfileInfo>(arr[0].ToString());
+            var steamProfile = await GetSteamProfile(id64, apiKey);
 
-            var gameCount = await client.GetStringAsync($"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={steamApiKey}&steamid={steamId}&format=json");
-            JObject gameObj = JObject.Parse(gameCount);
+            if (steamProfile == null)
+            {
+                _ = commandContext.Channel.SendMessageAsync("Não encontrei esse usuário; Verifique o número informado e se o perfil da steam está público.");
+                return;
+            }
 
-            profile.GameCount = (int)gameObj["response"]["game_count"];
+            steamProfile.GameCount = await GetSteamGames(id64, apiKey);
 
-            var lvlBadge = await client.GetStringAsync($"http://api.steampowered.com/IPlayerService/GetBadges/v1/?key={steamApiKey}&steamid={steamId}");
-            JObject badgeObj = JObject.Parse(lvlBadge);
-            JArray badgeArr = JArray.Parse(badgeObj["response"]["badges"].ToString());
+            steamProfile.Badges = await GetSteamBadges(id64, apiKey);
 
-            profile.Level = (int)badgeObj["response"]["player_level"];
-            profile.Xp = (int)badgeObj["response"]["player_xp"];
-            profile.XpToNextLevel = (int)badgeObj["response"]["player_xp_needed_to_level_up"];
-            profile.Badges = badgeArr.Count;
+            var playerXp = await GetPlayerXp(id64, apiKey);
 
-            var groupCount = await client.GetStringAsync($"http://api.steampowered.com/ISteamUser/GetUserGroupList/v0001/?key={steamApiKey}&steamid={steamId}");
-            JObject groupObj = JObject.Parse(groupCount);
-            JArray groupArr = JArray.Parse(groupObj["response"]["groups"].ToString());
+            steamProfile.Xp = (int)playerXp["response"]["player_xp"];
+            steamProfile.XpToNextLevel = (int)playerXp["response"]["player_xp_needed_to_level_up"];
+            steamProfile.Level = (int)playerXp["response"]["player_level"];
 
-            profile.GroupCount = groupArr.Count;
+            steamProfile.GroupCount = await GetPlayerGroups(id64, apiKey);
 
-            CreateSteamBitmap(profile);
+            CreateSteamBitmap(steamProfile);
 
             var embed = new EmbedBuilder()
             {
-                ImageUrl = "attachment://overlay.png"
+                ImageUrl = "attachment://overlay.png",
             }
-            .WithUrl(profile.ProfileUrl)
-            .WithFooter(new EmbedFooterBuilder() { Text = $"{profile.ProfileUrl} \n{id3}", IconUrl = "https://e7.pngegg.com/pngimages/699/999/png-clipart-brand-logo-steam-gump-s.png" })
+            .WithUrl(steamProfile.ProfileUrl)
+            .WithFooter(new EmbedFooterBuilder() { Text = $"{steamProfile.ProfileUrl} \n{id3}", IconUrl = "https://e7.pngegg.com/pngimages/699/999/png-clipart-brand-logo-steam-gump-s.png" })
             .Build();
 
             await commandContext.Message.DeleteAsync();
             await commandContext.Channel.SendFileAsync($"{AppContext.BaseDirectory}overlay.png", embed: embed);
-
         }
-        private async Task<long> GetSteamByName([Remainder] string steamName, SocketCommandContext commandContext)
+
+        public async Task<string> GetSteamApiKey()
         {
             var config = await _context.BotConfigs.FirstOrDefaultAsync();
-            var steamApiKey = config.SteamApiKey;
-            if (steamApiKey == string.Empty || steamApiKey == null)
+            return config.SteamApiKey;
+        }
+
+        public async Task<int> GetPlayerGroups(long id64, string apiKey)
+        {
+            var client = new HttpClient();
+            var reqResult = await client.GetStringAsync($"http://api.steampowered.com/ISteamUser/GetUserGroupList/v0001/?key={apiKey}&steamid={id64}");
+            var reqObj = JObject.Parse(reqResult);
+            return JArray.Parse(reqObj["response"]["groups"].ToString()).Count;
+        }
+
+        public async Task<JObject> GetPlayerXp(long id64, string apiKey)
+        {
+            var client = new HttpClient();
+            var reqResult = await client.GetStringAsync($"http://api.steampowered.com/IPlayerService/GetBadges/v1/?key={apiKey}&steamid={id64}");
+            var reqObj = JObject.Parse(reqResult);
+            //return JArray.Parse(reqObj["response"].ToString());
+            return reqObj;
+        }
+
+        public async Task<int> GetSteamBadges(long id64, string apiKey)
+        {
+            var client = new HttpClient();
+            var reqResult = await client.GetStringAsync($"http://api.steampowered.com/IPlayerService/GetBadges/v1/?key={apiKey}&steamid={id64}");
+            var reqObj = JObject.Parse(reqResult);
+            int badgeCount = 0;
+            try
             {
-                await commandContext.Channel.SendMessageAsync("Configure a sua API key da Steam no painel primeiro");
+                var badgeArr = JArray.Parse(reqObj["response"]["badges"].ToString());
+                badgeCount = badgeArr.Count;
+            }
+            catch (Exception e)
+            {
+                badgeCount = 0;
             }
 
+            return badgeCount;
+        }
+
+        public async Task<int> GetSteamGames(long id64, string apiKey)
+        {
             var client = new HttpClient();
-            var result = await client.GetStringAsync($"https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={steamApiKey}&vanityurl={steamName}");
-            JObject obj = JObject.Parse(result);
-            long.TryParse((string)obj["response"]["steamid"], out long id);
-            return id;
+            var reqResult = await client.GetStringAsync($"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={apiKey}&steamid={id64}&format=json");
+
+            var gameObj = JObject.Parse(reqResult);
+            int gameCount = 0;
+            try
+            {
+                gameCount = (int)gameObj["response"]["game_count"];
+            }
+            catch (Exception e)
+            {
+                gameCount = 0;
+            }
+            return gameCount;
+        }
+
+        public async Task<SteamProfileInfo> GetSteamProfile(long id64, string apiKey)
+        {
+            var client = new HttpClient();
+            var reqResult = await client.GetAsync($"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={apiKey}&steamids={id64}");
+
+            if (reqResult.IsSuccessStatusCode)
+            {
+                if (reqResult.StatusCode != HttpStatusCode.OK)
+                {
+                    return null;
+                }
+
+                var reqObj = JObject.Parse(await reqResult.Content.ReadAsStringAsync());
+                var reqArr = JArray.Parse(reqObj["response"]["players"].ToString());
+
+                if (reqArr.Count != 0)
+                {
+                    return JsonConvert.DeserializeObject<SteamProfileInfo>(reqArr[0].ToString());
+                }
+            }
+
+            return null;
         }
 
         private void CreateSteamBitmap(SteamProfileInfo profile)
         {
             var currentPath = Directory.GetCurrentDirectory();
-	    Console.Write(Path.Combine(currentPath, "unknown.png"));
+            Console.Write(Path.Combine(currentPath, "unknown.png"));
             System.Drawing.Image background = System.Drawing.Image.FromFile(Path.Combine(AppContext.BaseDirectory, "unknown.png")); // base img
-	
+
             HttpWebRequest request = HttpWebRequest.Create(profile.AvatarFull) as HttpWebRequest;
             var response = request.GetResponse();
             Bitmap profilePic = new Bitmap(response.GetResponseStream());
@@ -179,14 +234,7 @@ namespace Bota.Services
             }
         }
 
-        public async Task GetSteamProfile(SocketCommandContext commandContext, int friendCode)
-        {
-            var userId = ConvertId3ToSteamID(friendCode);
-
-
-        }
-
-        private Int64 ConvertId3ToSteamID(int id3)
+        private Int64 GetSteamId64(int id3)
         {
             const Int64 steamIdentifier = 76561197960265728;
 
