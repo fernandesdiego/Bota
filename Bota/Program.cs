@@ -16,6 +16,7 @@
     using Victoria;
     using System;
     using System.Diagnostics;
+    using Discord.Interactions;
 
     /// <summary>
     /// Entry point of the program.
@@ -36,17 +37,18 @@
                         var connectionString = context.Configuration.GetConnectionString("DefaultConnectionString");
                         var serverversion = ServerVersion.AutoDetect(connectionString);
 
+                        services.AddLavaNode(options =>
+                        {
+                            options.SelfDeaf = false;
+                            options.LogSeverity = LogSeverity.Debug;
+                        });
                         services.AddDbContext<ApplicationContext>(options => { options.UseMySql(connectionString, serverversion); }, ServiceLifetime.Singleton);
                         services.AddSingleton<LavaNode>();
                         services.AddSingleton<LavaConfig>();
                         services.AddSingleton<AudioService>();
                         services.AddSingleton<SteamService>();
+                        services.AddHostedService<InteractionHandler>();
                         services.AddHostedService<CommandHandler>();
-                        services.AddLavaNode(x =>
-                        {
-                            x.SelfDeaf = false;
-                            x.LogSeverity = LogSeverity.Debug;
-                        });
                     })
                     .ConfigureDiscordHost((context, config) =>
                     {
@@ -62,7 +64,12 @@
                     {
                         config.CaseSensitiveCommands = false;
                         config.LogLevel = LogSeverity.Debug;
-                        config.DefaultRunMode = RunMode.Sync;
+                        config.DefaultRunMode = Discord.Commands.RunMode.Async;
+                    })
+                    .UseInteractionService((context, config) =>
+                    {
+                        config.LogLevel = LogSeverity.Debug;
+                        config.DefaultRunMode = Discord.Interactions.RunMode.Async;
                     })
                 .UseConsoleLifetime();
 
