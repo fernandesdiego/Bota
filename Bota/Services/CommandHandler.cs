@@ -67,22 +67,23 @@
             }
         }
 
-        private async Task OnUserLeft(SocketGuildUser socketGuildUser)
+        private async Task OnUserLeft(SocketGuild socketGuild, SocketUser socketUser)
         {
             // TODO: get message list from db, return string.format("'string {0}', var)" with mention;
             List<string> leftMessages = new ()
             {
-                $"Ue, {socketGuildUser.Mention} ficou puto e kitou?",
-                $"Que que houve com o {socketGuildUser.Mention}?",
-                $"Mas ja vai, {socketGuildUser.Mention}?",
-                $"Vai tarde, {socketGuildUser.Mention}...",
-                $"Beleza então, {socketGuildUser.Mention}, pra entrar dnv vai ter que dar uma mamada",
-                $"{socketGuildUser.Mention}: 'Ain fiquei putinho e kitei'",
-                $"{socketGuildUser.Mention} é corno",
+                $"Ue, {socketUser.Mention} ficou puto e kitou?",
+                $"Que que houve com o {socketUser.Mention}?",
+                $"Mas ja vai, {socketUser.Mention}?",
+                $"Vai tarde, {socketUser.Mention}...",
+                $"Beleza então, {socketUser.Mention}, pra entrar dnv vai ter que dar uma mamada",
+                $"{socketUser.Mention}: 'Ain fiquei putinho e kitei'",
+                $"{socketUser.Mention} é corno",
             };
 
             var rand = new Random();
-            await socketGuildUser.Guild.DefaultChannel.SendMessageAsync(leftMessages[rand.Next(0, leftMessages.Count)]);
+
+            await socketGuild.DefaultChannel.SendMessageAsync(leftMessages[rand.Next(0, leftMessages.Count)]);
         }
 
         private async Task OnUserJoined(SocketGuildUser socketGuildUser)
