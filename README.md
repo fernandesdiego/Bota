@@ -2,7 +2,6 @@
 ## This is Bota  ( ͡° ͜ʖ ͡°) 
  A discord bot created using [Discord.NET](https://github.com/discord-net/Discord.Net) and [Victoria](https://github.com/Yucked/Victoria)
 
- *Prod Build Status*
  [![Build status](https://dev.azure.com/BotaCorp/Botabot/_apis/build/status/Botabot-Prod)](https://dev.azure.com/BotaCorp/Botabot/_apis/build/status/Botabot-Prod?branchName=master)
 
 **Capabilities:**
