@@ -22,7 +22,6 @@
 - [ ] Manage users roles
 - [ ] Mute, ban, kick
 - [ ] Enhance player controls as sometimes bota loses connection with discord's websocket and doesn't play 
-- [ ] Create steam banner with players info
 - [ ] Gamify
 - [ ] Send commands to bota through the web pannel
 
