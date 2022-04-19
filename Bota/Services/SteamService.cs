@@ -15,6 +15,7 @@ using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using ImageMagick;
 
 namespace Bota.Services
 {
@@ -158,16 +159,123 @@ namespace Bota.Services
 
         private void CreateSteamBitmap(SteamProfileInfo profile)
         {
+            int x = 57;
+            int y = 42;
+            int size = 215;
+            int borderRadius = 15;
+
+            using (var bg = new MagickImage(Path.Combine(AppContext.BaseDirectory, "unknown.png")))
+            {
+                using (var image = profile.ProfilePic)
+                {
+                    image.Resize(new MagickGeometry() { Height = size, Width = size, IgnoreAspectRatio = true, FillArea = true });
+
+                    using (var mask = new MagickImage(MagickColors.White, image.Width, image.Height))
+                    {
+                        new Drawables()
+                        .FillColor(MagickColors.Black)
+                        .StrokeColor(MagickColors.Black)
+                        .Polygon(new PointD(0, 0), new PointD(0, borderRadius), new PointD(borderRadius, 0))
+                        .Polygon(new PointD(mask.Width, 0), new PointD(mask.Width, borderRadius), new PointD(mask.Width - borderRadius, 0))
+                        .Polygon(new PointD(0, mask.Height), new PointD(0, mask.Height - borderRadius), new PointD(borderRadius, mask.Height))
+                        .Polygon(new PointD(mask.Width, mask.Height), new PointD(mask.Width, mask.Height - borderRadius), new PointD(mask.Width - borderRadius, mask.Height))
+                        .FillColor(MagickColors.White)
+                        .StrokeColor(MagickColors.White)
+                        .Circle(borderRadius, borderRadius, borderRadius, 0)
+                        .Circle(mask.Width - borderRadius, borderRadius, mask.Width - borderRadius, 0)
+                        .Circle(borderRadius, mask.Height - borderRadius, 0, mask.Height - borderRadius)
+                        .Circle(mask.Width - borderRadius, mask.Height - borderRadius, mask.Width - borderRadius, mask.Height)
+                        .Draw(mask);
+
+                        using (var imageAlpha = image.Clone())
+                        {
+                            imageAlpha.Alpha(AlphaOption.Extract);
+                            imageAlpha.Opaque(MagickColors.White, MagickColors.None);
+                            mask.Composite(imageAlpha, CompositeOperator.Over);
+                        }
+
+                        mask.HasAlpha = false;
+                        image.HasAlpha = false;
+                        image.Composite(mask, CompositeOperator.CopyAlpha);
+                        bg.Composite(image, x, y, CompositeOperator.Over);
+                    }
+                }
+
+                //draw xp bar
+                float currentXp = profile.Xp;
+                float toNextLvl = profile.XpToNextLevel;
+                float xpPercent = currentXp / (currentXp + toNextLvl) * 100;
+
+                int barX = 326;
+                int barY = 210;
+                int barWidth = 600;
+                int barHeight = 20;
+                float currentProgress = xpPercent / 100 * barWidth;
+
+                var rects = new Drawables()
+                    .FillColor(MagickColors.Transparent)
+                    .StrokeColor(MagickColors.DimGray)
+                    .Rectangle(barX, barY, barX + barWidth, barY + barHeight)
+                    .FillColor(MagickColors.DimGray)
+                    .Rectangle(barX, barY, barX + currentProgress, barY + barHeight);
+
+                bg.Draw(rects);
+
+                //Write info
+                using (var caption = new MagickImage())
+                {
+                    var txtSettings = new MagickReadSettings
+                    {
+                        Font = "DejaVuSans.ttf",
+                        FontPointsize = 32f,
+                        BackgroundColor = MagickColors.Transparent,
+                        FillColor = MagickColors.WhiteSmoke,
+                        TextInterlineSpacing = 10,
+                        Width = bg.Width
+                    };
+                    string text = $"Nivel {profile.Level}\nInsígnias {profile.Badges}\nGrupos {profile.GroupCount}";
+
+                    caption.Read($"caption:{text}", txtSettings);
+                    bg.Composite(caption, 708, 42, CompositeOperator.Over);
+
+                    txtSettings.FillColor = MagickColors.SlateGray;
+
+                    text = profile.PersonaName;
+                    caption.Read($"caption:{text}", txtSettings);
+                    bg.Composite(caption, 326, 42, CompositeOperator.Over);
+
+                    txtSettings.FillColor = MagickColors.WhiteSmoke;
+                    txtSettings.FontPointsize = 26;
+                    text = SteamStatus(profile.PersonaState);
+                    caption.Read($"caption:{text}", txtSettings);
+                    bg.Composite(caption, 326, 81, CompositeOperator.Over);
+
+                    text = $"Jogos {profile.GameCount}";
+                    caption.Read($"caption:{text}", txtSettings);
+                    bg.Composite(caption, 326, 173, CompositeOperator.Over);
+
+                    txtSettings.FontPointsize = 15;
+                    text = $"{profile.Xp} XP → {profile.XpToNextLevel}";
+                    caption.Read($"caption:{text}", txtSettings);
+                    bg.Composite(caption, 326, 231, CompositeOperator.Over);
+                }
+
+                bg.Write(Path.Combine(AppContext.BaseDirectory, "overlay.png"));
+            }
+        }
+
+        private void OldCreateSteamBitmap(SteamProfileInfo profile)
+        {
             var currentPath = Directory.GetCurrentDirectory();
             Console.Write(Path.Combine(currentPath, "unknown.png"));
-            System.Drawing.Image background = System.Drawing.Image.FromFile(Path.Combine(AppContext.BaseDirectory, "unknown.png")); // base img
 
             HttpWebRequest request = HttpWebRequest.Create(profile.AvatarFull) as HttpWebRequest;
             var response = request.GetResponse();
             Bitmap profilePic = new Bitmap(response.GetResponseStream());
-
+            var profilepicture = new MagickImage(response.GetResponseStream());
             profilePic = new Bitmap(profilePic, 215, 215);
 
+            System.Drawing.Image background = System.Drawing.Image.FromFile(Path.Combine(AppContext.BaseDirectory, "unknown.png")); // base img
             Bitmap newImage = new Bitmap(background.Width, background.Height);
 
             using (Graphics gr = Graphics.FromImage(newImage))

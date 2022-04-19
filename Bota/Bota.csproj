@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
+    <UserSecretsId>563c9f3d-71a8-4a71-a319-114563442093</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,6 +12,7 @@
     <PackageReference Include="Discord.Net.Commands" Version="3.4.0" />
     <PackageReference Include="Discord.Net.Core" Version="3.4.0" />
     <PackageReference Include="Discord.Net.WebSocket" Version="3.4.0" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="11.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.10">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
