@@ -233,7 +233,7 @@ namespace Bota.Services
                         TextInterlineSpacing = 10,
                         Width = bg.Width
                     };
-                    string text = $"Nivel {profile.Level}\nInsígnias {profile.Badges}\nGrupos {profile.GroupCount}";
+                    string text = $"Nível {profile.Level}\nInsígnias {profile.Badges}\nGrupos {profile.GroupCount}";
 
                     caption.Read($"caption:{text}", txtSettings);
                     bg.Composite(caption, 708, 42, CompositeOperator.Over);
