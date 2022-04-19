@@ -226,7 +226,7 @@ namespace Bota.Services
                 {
                     var txtSettings = new MagickReadSettings
                     {
-                        Font = "DejaVuSans.ttf",
+                        Font = "Assets/DejaVuSans.ttf",
                         FontPointsize = 32f,
                         BackgroundColor = MagickColors.Transparent,
                         FillColor = MagickColors.WhiteSmoke,
