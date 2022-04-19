@@ -226,12 +226,12 @@ namespace Bota.Services
                 {
                     var txtSettings = new MagickReadSettings
                     {
-                        Font = "Assets/DejaVuSans.ttf",
+                        Font = Path.Combine(AppContext.BaseDirectory, "Assets/DejaVuSans.ttf"),
                         FontPointsize = 32f,
                         BackgroundColor = MagickColors.Transparent,
                         FillColor = MagickColors.WhiteSmoke,
                         TextInterlineSpacing = 10,
-                        Width = bg.Width
+                        Width = bg.Width,
                     };
                     string text = $"Nível {profile.Level}\nInsígnias {profile.Badges}\nGrupos {profile.GroupCount}";
 
