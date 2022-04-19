@@ -240,7 +240,7 @@ namespace Bota.Services
 
                     txtSettings.FillColor = MagickColors.SlateGray;
 
-                    text = profile.PersonaName;
+                    text = profile.PersonaName.Length < 15 ? profile.PersonaName : profile.PersonaName.Substring(0, 15);
                     caption.Read($"caption:{text}", txtSettings);
                     bg.Composite(caption, 326, 42, CompositeOperator.Over);
 
@@ -262,67 +262,6 @@ namespace Bota.Services
 
                 bg.Write(Path.Combine(AppContext.BaseDirectory, "overlay.png"));
             }
-        }
-
-        private void OldCreateSteamBitmap(SteamProfileInfo profile)
-        {
-            var currentPath = Directory.GetCurrentDirectory();
-            Console.Write(Path.Combine(currentPath, "unknown.png"));
-
-            HttpWebRequest request = HttpWebRequest.Create(profile.AvatarFull) as HttpWebRequest;
-            var response = request.GetResponse();
-            Bitmap profilePic = new Bitmap(response.GetResponseStream());
-            var profilepicture = new MagickImage(response.GetResponseStream());
-            profilePic = new Bitmap(profilePic, 215, 215);
-
-            System.Drawing.Image background = System.Drawing.Image.FromFile(Path.Combine(AppContext.BaseDirectory, "unknown.png")); // base img
-            Bitmap newImage = new Bitmap(background.Width, background.Height);
-
-            using (Graphics gr = Graphics.FromImage(newImage))
-            {
-                gr.DrawImage(background, new Point(0, 0));
-
-                gr.DrawString($"Nível {profile.Level}", new Font("Fira Code", 22f), Brushes.WhiteSmoke, 708, 42);
-                gr.DrawString($"Insígnias {profile.Badges}", new Font("Fira Code", 22f), Brushes.WhiteSmoke, 708, 82);
-                gr.DrawString($"Grupos {profile.GroupCount}", new Font("Fira Code", 22f), Brushes.WhiteSmoke, 708, 122);
-
-                var nameLenght = profile.PersonaName.Length;
-
-                gr.DrawString(profile.PersonaName.Length < 15 ? profile.PersonaName : profile.PersonaName.Substring(0, 15), new Font("Fira Code", 22f), Brushes.SlateGray, 326, 42);
-                gr.DrawString($"{SteamStatus(profile.PersonaState)}", new Font("Fira Code", 18f), Brushes.WhiteSmoke, 326, 81);
-                gr.DrawString($"Jogos {profile.GameCount}", new Font("Fira Code", 18f), Brushes.WhiteSmoke, 326, 173);
-
-                float currentXp = profile.Xp;
-                float toNextLvl = profile.XpToNextLevel;
-                float xpPercent = currentXp / (currentXp + toNextLvl) * 100;
-
-                float barWidth = 600;
-                float currentProgress = xpPercent / 100 * barWidth;
-
-                gr.DrawRectangle(new Pen(Brushes.DimGray), 326, 210, barWidth, 20);
-                gr.FillRectangle(Brushes.DimGray, 326, 210, currentProgress, 20);
-
-                gr.DrawString($"{currentXp} XP → {toNextLvl}", new Font("Fira Code", 10f), Brushes.WhiteSmoke, 326, 231);
-
-                using (GraphicsPath gp = new GraphicsPath())
-                {
-                    var radius = 15 * 2;
-                    var x = 57;
-                    var y = 41;
-                    var size = 215;
-                    // create rounded square
-                    gp.AddArc(x, y, radius, radius, 180, 90);
-                    gp.AddArc(x + profilePic.Width - radius, 39, radius, radius, 270, 90);
-                    gp.AddArc(x + profilePic.Width - radius, y + profilePic.Height - radius, radius, radius, 0, 90);
-                    gp.AddArc(x, y + profilePic.Height - radius, radius, radius, 90, 90);
-
-                    gr.SmoothingMode = SmoothingMode.HighQuality;
-                    gr.SetClip(gp);
-                    gr.DrawImage(profilePic, x, y, size, size);
-                }
-            }
-
-            newImage.Save(Path.Combine(AppContext.BaseDirectory, "overlay.png"));
         }
 
         private static string SteamStatus(int number)
