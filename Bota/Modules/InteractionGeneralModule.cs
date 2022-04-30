@@ -18,6 +18,12 @@ namespace Bota.Modules
             InteractionCommands = interaction;
         }
 
+        [SlashCommand("exception", "throw an exception")]
+        public async Task ThrowException(string message)
+        {
+            throw new Exception(message);
+        }
+
         [SlashCommand("ping", "Retorna pong")]
         public async Task Ping()
         {
@@ -35,9 +41,11 @@ namespace Bota.Modules
         {
             var commands = InteractionCommands.SlashCommands.ToList();
             string info = "Lista de comandos:\n";
-            foreach (var command in commands) {
+            foreach (var command in commands)
+            {
                 info += $"Nome: {command.Name}\tDescrição: {command.Description}\n";
             }
+
             await Context.Interaction.RespondAsync(info);
         }
     }
