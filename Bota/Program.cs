@@ -31,7 +31,7 @@
                         .Build())
                     .ConfigureLogging(x => x
                         .AddConsole()
-                        .SetMinimumLevel(LogLevel.Debug))
+                        .SetMinimumLevel(LogLevel.Trace))
                     .ConfigureServices((context, services) =>
                     {
                         var connectionString = context.Configuration.GetConnectionString("DefaultConnectionString");

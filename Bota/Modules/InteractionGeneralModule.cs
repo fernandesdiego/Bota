@@ -35,9 +35,11 @@ namespace Bota.Modules
         {
             var commands = InteractionCommands.SlashCommands.ToList();
             string info = "Lista de comandos:\n";
-            foreach (var command in commands) {
+            foreach (var command in commands)
+            {
                 info += $"Nome: {command.Name}\tDescrição: {command.Description}\n";
             }
+
             await Context.Interaction.RespondAsync(info);
         }
     }
