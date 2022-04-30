@@ -31,23 +31,13 @@ namespace Bota.Modules
             InteractionCommands = interaction;
         }
 
-        //[SlashCommand("join", "Chama o Bota pro canal de voz ao qual você está conectado")]
-        //public async Task JoinAsync()
-        //{
-        //    if ((Context.User as IVoiceState).VoiceChannel != null)
-        //    {
-        //        await _audioService.JoinAsync(Context);
-        //    }
-
-        //    await Context.Interaction.RespondAsync("Você precisa estar conectado em um canal de voz.");
-        //}
-
         [SlashCommand("leave", "Desliga o Bota do canal atual")]
         public async Task LeaveAsync()
         {
             if ((Context.User as IVoiceState).VoiceChannel != null)
             {
                 await _audioService.LeaveAsync(Context);
+                return;
             }
 
             await Context.Interaction.RespondAsync("Você precisa estar conectado em um canal de voz.");
@@ -59,6 +49,7 @@ namespace Bota.Modules
             if ((Context.User as IVoiceState).VoiceChannel != null)
             {
                 await _audioService.PlayAsync(Context, song);
+                return;
             }
 
             await Context.Interaction.RespondAsync("Você precisa estar conectado em um canal de voz.");
@@ -70,6 +61,7 @@ namespace Bota.Modules
             if ((Context.User as IVoiceState).VoiceChannel != null)
             {
                 await _audioService.PauseAsync(Context);
+                return;
             }
 
             await Context.Interaction.RespondAsync("Você precisa estar conectado em um canal de voz.");
@@ -81,6 +73,7 @@ namespace Bota.Modules
             if ((Context.User as IVoiceState).VoiceChannel != null)
             {
                 await _audioService.ResumeAsync(Context);
+                return;
             }
 
             await Context.Interaction.RespondAsync("Você precisa estar conectado em um canal de voz.");
@@ -92,6 +85,7 @@ namespace Bota.Modules
             if ((Context.User as IVoiceState).VoiceChannel != null)
             {
                 await _audioService.StopAsync(Context);
+                return;
             }
 
             await Context.Interaction.RespondAsync("Você precisa estar conectado em um canal de voz.");
@@ -103,6 +97,7 @@ namespace Bota.Modules
             if ((Context.User as IVoiceState).VoiceChannel != null)
             {
                 await _audioService.SkipAsync(Context);
+                return;
             }
 
             await Context.Interaction.RespondAsync("Você precisa estar conectado em um canal de voz.");
@@ -112,6 +107,7 @@ namespace Bota.Modules
         public async Task ListAsync()
         {
             await _audioService.ListAsync(Context);
+            return;
         }
     }
 }
