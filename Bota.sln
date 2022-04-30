@@ -5,7 +5,7 @@ VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bota", "Bota\Bota.csproj", "{63884D4C-642E-4003-8C7B-153A67D9EBF3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Victoria", "Victoria\src\Victoria.csproj", "{ED0A3C5B-82F9-4DC3-BB40-4D8B98ECEC64}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Victoria", "..\..\Victoria\src\Victoria.csproj", "{03F6126E-429B-4D22-A2B1-FBD967AA42A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{63884D4C-642E-4003-8C7B-153A67D9EBF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63884D4C-642E-4003-8C7B-153A67D9EBF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63884D4C-642E-4003-8C7B-153A67D9EBF3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ED0A3C5B-82F9-4DC3-BB40-4D8B98ECEC64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ED0A3C5B-82F9-4DC3-BB40-4D8B98ECEC64}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ED0A3C5B-82F9-4DC3-BB40-4D8B98ECEC64}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ED0A3C5B-82F9-4DC3-BB40-4D8B98ECEC64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03F6126E-429B-4D22-A2B1-FBD967AA42A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03F6126E-429B-4D22-A2B1-FBD967AA42A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03F6126E-429B-4D22-A2B1-FBD967AA42A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03F6126E-429B-4D22-A2B1-FBD967AA42A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

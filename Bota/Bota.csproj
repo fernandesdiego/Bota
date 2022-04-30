@@ -56,7 +56,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Victoria\src\Victoria.csproj" />
+    <ProjectReference Include="..\..\..\Victoria\src\Victoria.csproj" />
   </ItemGroup>
 
 </Project>
