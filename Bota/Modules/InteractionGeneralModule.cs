@@ -18,12 +18,6 @@ namespace Bota.Modules
             InteractionCommands = interaction;
         }
 
-        [SlashCommand("exception", "throw an exception")]
-        public async Task ThrowException(string message)
-        {
-            throw new Exception(message);
-        }
-
         [SlashCommand("ping", "Retorna pong")]
         public async Task Ping()
         {

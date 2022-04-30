@@ -142,6 +142,7 @@ namespace Bota.Services
                     }
                 }
             }
+            await context.Interaction.RespondAsync("Você precisa estar no mesmo canal que eu");
         }
 
         public async Task PauseAsync(SocketInteractionContext context)
