@@ -47,6 +47,7 @@
                         services.AddSingleton<LavaConfig>();
                         services.AddSingleton<AudioService>();
                         services.AddSingleton<SteamService>();
+                        services.AddSingleton<PollService>();
                         services.AddHostedService<InteractionHandler>();
                         services.AddHostedService<CommandHandler>();
                     })

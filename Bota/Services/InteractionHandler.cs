@@ -33,10 +33,6 @@ namespace Bota.Services
         {
             _client.InteractionCreated += HandleInteraction;
             _client.Ready += OnReady;
-            _commands.SlashCommandExecuted += OnSlashCommandExecuted;
-            _commands.ContextCommandExecuted += OnContextCommandExecuted;
-            _commands.ComponentCommandExecuted += OnComponentCommandExecuted;
-            _commands.ModalCommandExecuted += OnModalCommandExecuted;
 
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
         }
@@ -52,26 +48,6 @@ namespace Bota.Services
 #else
             await _commands.RegisterCommandsGloballyAsync(true);
 #endif
-        }
-
-        private Task OnModalCommandExecuted(ModalCommandInfo arg1, IInteractionContext arg2, IResult arg3)
-        {
-            throw new NotImplementedException();
-        }
-
-        private Task OnComponentCommandExecuted(ComponentCommandInfo arg1, IInteractionContext arg2, IResult arg3)
-        {
-            throw new NotImplementedException();
-        }
-
-        private Task OnContextCommandExecuted(ContextCommandInfo arg1, IInteractionContext arg2, IResult arg3)
-        {
-            throw new NotImplementedException();
-        }
-
-        private Task OnSlashCommandExecuted(SlashCommandInfo arg1, IInteractionContext arg2, IResult arg3)
-        {
-            return Task.CompletedTask;
         }
 
         private async Task HandleInteraction(SocketInteraction arg)
