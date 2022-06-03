@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'botaapplication'
           slot-name: 'dev'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3789C573DD984B429D9D6F39C84AC7EE }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C96C229A30B7425C9C64D26CF651568B }}
           package: .
