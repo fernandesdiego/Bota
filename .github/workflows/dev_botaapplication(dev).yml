@@ -31,7 +31,7 @@ jobs:
       - name: Change AppSettings Variables
         uses: microsoft/variable-substitution@v1
         with:
-          files: '${{env.DOTNET_ROOT}}/Bota/appsettings.Development.Json'
+          files: '${{env.DOTNET_ROOT}}/myapp/appsettings.Development.Json'
         env:
           Token: ${{ secrets.TOKEN }}
           LavalinkServer: ${{ secrets.LAVALINKSERVER }}
