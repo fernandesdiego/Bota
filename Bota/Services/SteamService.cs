@@ -16,23 +16,26 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using ImageMagick;
+using Bota.Services.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Bota.Services
 {
     public class SteamService
     {
-        private readonly ApplicationContext _context;
+        private readonly SteamSettings SteamSettings;
+        private readonly string apiKey;
 
-        public SteamService(ApplicationContext contex)
+        public SteamService(IOptions<SteamSettings> steamSettings)
         {
-            _context = contex;
+            SteamSettings = steamSettings.Value;
+            apiKey = SteamSettings.SteamApiKey;
         }
 
         public async Task GetSteamUser(int id3, SocketCommandContext commandContext)
         {
             var id64 = GetSteamId64(id3);
 
-            var apiKey = await GetSteamApiKey();
             if (string.IsNullOrEmpty(apiKey))
             {
                 _ = commandContext.Channel.SendMessageAsync("Não encontrei uma chave de api steam válida, verifique o painel");
@@ -71,12 +74,6 @@ namespace Bota.Services
 
             await commandContext.Message.DeleteAsync();
             await commandContext.Channel.SendFileAsync($"{AppContext.BaseDirectory}overlay.png", embed: embed);
-        }
-
-        public async Task<string> GetSteamApiKey()
-        {
-            var config = await _context.BotConfigs.FirstOrDefaultAsync();
-            return config.SteamApiKey;
         }
 
         public async Task<int> GetPlayerGroups(long id64, string apiKey)

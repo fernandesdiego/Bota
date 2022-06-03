@@ -16,17 +16,13 @@ namespace Bota.Modules
 {
     public class MusicModule : InteractionModuleBase<SocketInteractionContext>
     {
-        private readonly ApplicationContext _context;
-        private readonly LavaNode _lavaNode;
         private readonly AudioService _audioService;
         private readonly SearchType[] searchTypes = { SearchType.YouTube, SearchType.YouTubeMusic, SearchType.SoundCloud };
 
         public InteractionService InteractionCommands { get; set; }
 
-        public MusicModule(ApplicationContext context, LavaNode lavaNode, AudioService audioService, InteractionService interaction)
+        public MusicModule(LavaNode lavaNode, AudioService audioService, InteractionService interaction)
         {
-            _context = context;
-            _lavaNode = lavaNode;
             _audioService = audioService;
             InteractionCommands = interaction;
         }

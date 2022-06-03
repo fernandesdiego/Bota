@@ -17,6 +17,7 @@
     using System;
     using System.Diagnostics;
     using Discord.Interactions;
+    using Bota.Services.Configuration;
 
     /// <summary>
     /// Entry point of the program.
@@ -34,22 +35,22 @@
                         .SetMinimumLevel(LogLevel.Trace))
                     .ConfigureServices((context, services) =>
                     {
-                        var connectionString = context.Configuration.GetConnectionString("DefaultConnectionString");
-                        var serverversion = ServerVersion.AutoDetect(connectionString);
-
                         services.AddLavaNode(options =>
                         {
                             options.SelfDeaf = false;
                             options.LogSeverity = LogSeverity.Debug;
+                            options.Authorization = context.Configuration["LavaNodePwd"];
+                            options.Port = 2333;
+                            options.Hostname = context.Configuration["LavalinkServer"];
                         });
-                        services.AddDbContext<ApplicationContext>(options => { options.UseMySql(connectionString, serverversion); }, ServiceLifetime.Singleton);
-                        services.AddSingleton<LavaNode>();
-                        services.AddSingleton<LavaConfig>();
+
                         services.AddSingleton<AudioService>();
-                        services.AddSingleton<SteamService>();
                         services.AddSingleton<PollService>();
+                        services.AddSingleton<SteamService>();
+                        services.Configure<SteamSettings>(context.Configuration.GetSection("SteamSettings"));
+
                         services.AddHostedService<InteractionHandler>();
-                        services.AddHostedService<CommandHandler>();
+
                     })
                     .ConfigureDiscordHost((context, config) =>
                     {
@@ -60,12 +61,6 @@
                             MessageCacheSize = 200,
                         };
                         config.Token = context.Configuration["Token"];
-                    })
-                    .UseCommandService((context, config) =>
-                    {
-                        config.CaseSensitiveCommands = false;
-                        config.LogLevel = LogSeverity.Debug;
-                        config.DefaultRunMode = Discord.Commands.RunMode.Async;
                     })
                     .UseInteractionService((context, config) =>
                     {
