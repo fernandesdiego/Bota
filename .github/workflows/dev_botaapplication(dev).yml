@@ -16,6 +16,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
+      - name: Change AppSettings Variables
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: 'Bota/appsettings.Development.json'
+        env:
+          Token: ${{ secrets.TOKEN }}
+          LavalinkServer: ${{ secrets.LAVALINKSERVER }}
+          LavaNodePwd: ${{ secrets.LAVANODEPWD }}
+          SteamSettings.SteamApiKey: ${{ secrets.STEAMAPIKEY }}
+          
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
@@ -28,15 +38,7 @@ jobs:
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
         
-      - name: Change AppSettings Variables
-        uses: microsoft/variable-substitution@v1
-        with:
-          files: '${{env.DOTNET_ROOT}}/myapp/appsettings.Development.Json'
-        env:
-          Token: ${{ secrets.TOKEN }}
-          LavalinkServer: ${{ secrets.LAVALINKSERVER }}
-          LavaNodePwd: ${{ secrets.LAVANODEPWD }}
-          SteamSettings.SteamApiKey: ${{ secrets.STEAMAPIKEY }}
+      
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
